@@ -1,0 +1,50 @@
+# Entornos y variables de entorno
+*.env
+*.env.*
+!.env.example
+!.env*.example
+
+# Node.js/NestJS
+node_modules/
+dist/
+build/
+coverage/
+.nyc_output/
+
+# Python/Django
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+.venv/
+*.sqlite3
+
+# Logs y archivos temporales
+logs/
+*.log
+.temp/
+.tmp/
+*.pid
+*.seed
+*.pid.lock
+
+# IDEs y editores
+.vscode/
+.idea/
+.DS_Store
+
+# Otros archivos de configuración o sistema
+*.swp
+*.swo
+.project
+.classpath
+.settings/
+.c9/
+*.launch
+*.sublime-workspace
+
+# Excepciones para archivos de ejemplo de entorno
+!.env.example
+!.env*.example
