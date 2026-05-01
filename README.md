@@ -138,3 +138,13 @@ El reporte HTML se genera en `services/auth-service/htmlcov/index.html`.
 - [services/api-gateway/README.md](./services/api-gateway/README.md)
 - [services/auth-service/README.md](./services/auth-service/README.md)
 - [insomnia/README.md](./insomnia/README.md)
+
+## Decisiones de arquitectura Sprint 2
+
+Para el desarrollo de la lógica de negocio y concurrencia en Sprint 2, se fijan las siguientes reglas:
+
+- El microservicio de reservas será el ya existente como `orders-service` (no se crea ni renombra otro servicio para “Reservations MS”).
+- El catálogo público de eventos y su inventario inicial estarán en MongoDB, gestionados por `events-service`.
+- El stock vendible real y la lógica de concurrencia (transacciones, locking, validación de inventario) estarán en PostgreSQL, gestionados por `orders-service`.
+- La comunicación de eventos de compra confirmada (`ORDER_CONFIRMED`) entre servicios se realizará usando Redis Pub/Sub (NATS queda fuera del alcance de este sprint).
+- `notifications-service` consumirá los eventos de compra confirmada desde Redis y simulará el envío de notificaciones mediante logs.
