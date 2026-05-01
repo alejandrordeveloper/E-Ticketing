@@ -1,6 +1,10 @@
+# Runtime
 Django>=4.0
 djangorestframework
 psycopg2-binary
 python-dotenv
 djangorestframework-simplejwt
 argon2-cffi
+
+# Development and testing
+coverage
