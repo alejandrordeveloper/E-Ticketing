@@ -14,9 +14,13 @@ from pathlib import Path
 from datetime import timedelta
 import os
 from dotenv import load_dotenv
+import os
 
-# Load environment variables from .env file
-load_dotenv()
+# Load .env.local if exists, else .env
+if os.path.exists(os.path.join(os.path.dirname(__file__), '..', '.env.local')):
+    load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env.local'))
+else:
+    load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

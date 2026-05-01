@@ -1,0 +1,161 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: Pruebas Django
+meta:
+  id: wrk_ac6f53ef05494181bd03355662d6031f
+  created: 1776994821166
+  modified: 1777402255391
+  description: ""
+collection:
+  - url: http://127.0.0.1:8000/register/
+    name: Register
+    meta:
+      id: req_7df0c413087f47d1a47cfb1d674b24ab
+      created: 1776994821180
+      modified: 1776997094597
+      isPrivate: false
+      description: ""
+      sortKey: -1776994821180
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "username": "admin2",
+          "email": "admin2@gmail.com",
+          "password": "admin123"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:8000/login/
+    name: Login
+    meta:
+      id: req_673d8f5f610b46f09be9deca3f244a1a
+      created: 1776995840901
+      modified: 1776997046375
+      isPrivate: false
+      description: ""
+      sortKey: -1776995840901
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "username": "admin",
+          "password": "admin123",
+        	"email": "alejandro@gmail.com"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:8000/token/
+    name: Refresh Token
+    meta:
+      id: req_97f0bc212b2c41a58d15616e52a8a17e
+      created: 1776996844135
+      modified: 1776997133615
+      isPrivate: false
+      description: ""
+      sortKey: -1776996844135
+    method: POST
+    body:
+      mimeType: application/json
+      text: >2-
+         {
+         "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3NzI1NTk5NiwiaWF0IjoxNzc2OTk2Nzk2LCJqdGkiOiIzNGIxMGZlNWZhMDY0ZTFjOTU2M2NhMmM2ZTJiOTBmMSIsInVzZXJfaWQiOiIxIn0.yGBOe3Dpd2IM4irL8UIu6JFQNOF2kazIoKejWrFLicg"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8000/register/
+    name: New Register (Docker)
+    meta:
+      id: req_23e00200a27743abbae2c9aafd054a25
+      created: 1777402276950
+      modified: 1777402612195
+      isPrivate: false
+      description: ""
+      sortKey: -1777402276950
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "username": "testuser",
+          "email": "testuser@example.com",
+          "password": "TestPassword123"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_c72ebf389fa4e9cb3540e7bbbf1a29a978e0808e
+    created: 1776994821171
+    modified: 1776995907040
+  cookies:
+    - id: 73f9e18f-8057-43bd-9a49-a87e20974e80
+      key: csrftoken
+      value: IiqJXuQPxUIkdwuILmZqJYTfSokknZY8
+      domain: 127.0.0.1
+      path: /
+      secure: false
+      httpOnly: false
+      hostOnly: true
+environments:
+  name: Base Environment
+  meta:
+    id: env_c72ebf389fa4e9cb3540e7bbbf1a29a978e0808e
+    created: 1776994821169
+    modified: 1776994821169
+    isPrivate: false

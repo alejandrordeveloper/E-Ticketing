@@ -1,0 +1,88 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: Pruebas Nestjs
+meta:
+  id: wrk_7c30a1cd2a0747e1a0960f33b0d0bdab
+  created: 1777598788737
+  modified: 1777598788737
+  description: ""
+collection:
+  - url: http://localhost:3000/auth/register
+    name: Register (Nestjs)
+    meta:
+      id: req_6549f9911eb24fbc9c125fbf0be2e15f
+      created: 1777601809718
+      modified: 1777604445577
+      isPrivate: false
+      description: ""
+      sortKey: -1777601809718
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "username": "usuario1234",
+          "email": "usuario1234@email.com",
+          "password": "tu_password"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3000/auth/login
+    name: Login (Nestjs)
+    meta:
+      id: req_2b6487acb70345bcbc5b0a088900253c
+      created: 1777601928120
+      modified: 1777604461068
+      isPrivate: false
+      description: ""
+      sortKey: -1777601928120
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "username": "usuario1234",
+          "email": "usuario1234@email.com",
+          "password": "tu_password"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_7a8c73d1969b13f69dd7876735b632adfbfc0644
+    created: 1777598788765
+    modified: 1777598788765
+environments:
+  name: Base Environment
+  meta:
+    id: env_7a8c73d1969b13f69dd7876735b632adfbfc0644
+    created: 1777598788760
+    modified: 1777598788760
+    isPrivate: false
