@@ -1,22 +1,43 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigService } from '@nestjs/config';
+import { EventsController } from './events.controller';
+import { CoreProxyService } from './core-proxy.service';
 
-describe('AppController', () => {
-  let appController: AppController;
+describe('EventsController', () => {
+  let eventsController: EventsController;
+
+  const proxyServiceMock = {
+    get: jest.fn(),
+  };
+
+  const configServiceMock = {
+    getOrThrow: jest.fn().mockReturnValue('http://localhost:3002'),
+  };
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService],
+      controllers: [EventsController],
+      providers: [
+        {
+          provide: CoreProxyService,
+          useValue: proxyServiceMock,
+        },
+        {
+          provide: ConfigService,
+          useValue: configServiceMock,
+        },
+      ],
     }).compile();
 
-    appController = app.get<AppController>(AppController);
+    eventsController = app.get<EventsController>(EventsController);
+    proxyServiceMock.get.mockReset();
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
-    });
+  it('returns events from the events service', async () => {
+    const events = [{ id: 'event-1', name: 'Concert' }];
+
+    proxyServiceMock.get.mockResolvedValue(events);
+
+    await expect(eventsController.findAll()).resolves.toEqual(events);
   });
 });

@@ -1,22 +1,42 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { EventsController } from './events/events.controller';
+import { EventsService } from './events/events.service';
 
-describe('AppController', () => {
-  let appController: AppController;
+describe('EventsController', () => {
+  let eventsController: EventsController;
+
+  const eventsServiceMock = {
+    findAll: jest.fn(),
+  };
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService],
+      controllers: [EventsController],
+      providers: [
+        {
+          provide: EventsService,
+          useValue: eventsServiceMock,
+        },
+      ],
     }).compile();
 
-    appController = app.get<AppController>(AppController);
+    eventsController = app.get<EventsController>(EventsController);
+    eventsServiceMock.findAll.mockReset();
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
-    });
+  it('returns the list of events', async () => {
+    const events = [
+      {
+        name: 'Concierto de prueba',
+        description: 'Evento de catálogo',
+        date: new Date('2026-06-01T20:00:00.000Z'),
+        inventory: 10,
+      },
+    ];
+
+    eventsServiceMock.findAll.mockResolvedValue(events);
+
+    await expect(eventsController.findAll()).resolves.toEqual(events);
+    expect(eventsServiceMock.findAll).toHaveBeenCalledTimes(1);
   });
 });

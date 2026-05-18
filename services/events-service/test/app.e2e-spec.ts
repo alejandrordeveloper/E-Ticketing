@@ -1,26 +1,67 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module';
+import { EventsController } from './../src/events/events.controller';
+import { EventsService } from './../src/events/events.service';
 
-describe('AppController (e2e)', () => {
+describe('EventsController (e2e)', () => {
   let app: INestApplication<App>;
+
+  const eventsServiceMock = {
+    create: jest.fn(),
+    findAll: jest.fn(),
+  };
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      controllers: [EventsController],
+      providers: [
+        {
+          provide: EventsService,
+          useValue: eventsServiceMock,
+        },
+      ],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
+    eventsServiceMock.create.mockReset();
+    eventsServiceMock.findAll.mockReset();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  it('/events (GET)', async () => {
+    const events = [
+      {
+        name: 'Festival',
+        description: 'Evento publicado',
+        date: '2026-07-10T19:30:00.000Z',
+        inventory: 50,
+      },
+    ];
+
+    eventsServiceMock.findAll.mockResolvedValue(events);
+
+    await request(app.getHttpServer()).get('/events').expect(200).expect(events);
+  });
+
+  it('/events (POST)', async () => {
+    const payload = {
+      name: 'Conferencia',
+      description: 'Evento de tecnologia',
+      date: '2026-08-15T14:00:00.000Z',
+      inventory: 120,
+    };
+
+    eventsServiceMock.create.mockResolvedValue(payload);
+
+    await request(app.getHttpServer())
+      .post('/events')
+      .send(payload)
+      .expect(201)
+      .expect(payload);
+
+    expect(eventsServiceMock.create).toHaveBeenCalledWith(payload);
   });
 
   afterEach(async () => {

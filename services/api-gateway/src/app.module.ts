@@ -7,6 +7,10 @@ import { AuthController } from './auth.controller';
 import { HttpModule } from '@nestjs/axios';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { CoreProxyService } from './core-proxy.service';
+import { EventsController } from './events.controller';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { OrdersController } from './orders.controller';
 
 @Module({
   imports: [
@@ -21,9 +25,11 @@ import { ThrottlerGuard } from '@nestjs/throttler';
     ]),
     HttpModule,
   ],
-  controllers: [AppController, AuthController],
+  controllers: [AppController, AuthController, EventsController, OrdersController],
   providers: [
     AppService,
+    CoreProxyService,
+    JwtAuthGuard,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

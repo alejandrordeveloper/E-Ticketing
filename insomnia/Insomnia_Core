@@ -1,0 +1,173 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: Pruebas Core
+meta:
+  id: wrk_4ff7d6a4e75a4f3eb54ef5f1f8b0d77a
+  created: 1777609900000
+  modified: 1777609900000
+  description: ""
+collection:
+  - url: http://localhost:3000/events
+    name: List Events (Gateway)
+    meta:
+      id: req_6d8c7b7b1fd14e02af6bdabac0011001
+      created: 1777609900001
+      modified: 1777609900001
+      isPrivate: false
+      description: ""
+      sortKey: -1777609900001
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3000/events
+    name: Create Event (Gateway)
+    meta:
+      id: req_6d8c7b7b1fd14e02af6bdabac0011002
+      created: 1777609900002
+      modified: 1777609900002
+      isPrivate: false
+      description: ""
+      sortKey: -1777609900002
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "Concierto de prueba",
+          "description": "Evento creado desde la coleccion Core",
+          "date": "2026-06-20T20:00:00.000Z",
+          "inventory": 25
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3000/orders/stock
+    name: Seed Order Stock (Gateway)
+    meta:
+      id: req_6d8c7b7b1fd14e02af6bdabac0011003
+      created: 1777609900003
+      modified: 1777609900003
+      isPrivate: false
+      description: ""
+      sortKey: -1777609900003
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "eventId": "event-manual-001",
+          "initialInventory": 5
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Authorization
+        value: Bearer pegar_access_token_aqui
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3000/orders
+    name: Create Order (Gateway)
+    meta:
+      id: req_6d8c7b7b1fd14e02af6bdabac0011004
+      created: 1777609900004
+      modified: 1777609900004
+      isPrivate: false
+      description: ""
+      sortKey: -1777609900004
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "eventId": "event-manual-001",
+          "userId": "user-manual-001",
+          "quantity": 1
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Authorization
+        value: Bearer pegar_access_token_aqui
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3000/orders
+    name: List Orders (Gateway)
+    meta:
+      id: req_6d8c7b7b1fd14e02af6bdabac0011005
+      created: 1777609900005
+      modified: 1777609900005
+      isPrivate: false
+      description: ""
+      sortKey: -1777609900005
+    method: GET
+    headers:
+      - name: Authorization
+        value: Bearer pegar_access_token_aqui
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_4ff7d6a4e75a4f3eb54ef5f1f8b0d77a
+    created: 1777609900006
+    modified: 1777609900006
+environments:
+  name: Base Environment
+  meta:
+    id: env_4ff7d6a4e75a4f3eb54ef5f1f8b0d77a
+    created: 1777609900007
+    modified: 1777609900007
+    isPrivate: false

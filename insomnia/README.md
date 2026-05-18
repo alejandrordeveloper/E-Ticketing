@@ -1,11 +1,12 @@
 # Insomnia
 
-Esta carpeta contiene las exportaciones de Insomnia usadas para validar manualmente los endpoints del Sprint 1.
+Esta carpeta contiene las exportaciones de Insomnia usadas para validar manualmente los endpoints del Sprint 1 y 2.
 
 ## Archivos incluidos
 
 - `Insomnia_Django`
 - `Insomnia_Nestjs`
+- `Insomnia_Core`
 
 ## Qué cubren
 
@@ -15,6 +16,7 @@ Las colecciones se usaron para probar:
 - login
 - flujo directo contra Django
 - flujo a través del API Gateway
+- flujo Core de eventos y órdenes vía Gateway
 
 ## Cómo importarlas
 
@@ -45,3 +47,13 @@ token=<jwt>
 - `POST /register/`
 - `POST /login/`
 - `POST /token/`
+
+## Endpoints probados en Sprint 2
+
+### Core vía Gateway
+
+- `GET /events`
+- `POST /events`
+- `POST /orders/stock`
+- `POST /orders`
+- `GET /orders`
