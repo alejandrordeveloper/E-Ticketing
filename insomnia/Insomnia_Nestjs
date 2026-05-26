@@ -54,7 +54,6 @@ collection:
       mimeType: application/json
       text: |-
         {
-          "username": "usuario1234",
           "email": "usuario1234@email.com",
           "password": "tu_password"
         }

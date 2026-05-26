@@ -102,6 +102,9 @@ Responsable de:
 Para levantar el proyecto completo necesitas:
 
 - Docker Desktop
+
+Para ejecutar servicios manualmente fuera de Docker o correr pruebas locales también necesitas:
+
 - Node.js y npm
 - Python 3
 - un entorno virtual Python en la raíz del repositorio
@@ -110,8 +113,11 @@ Para levantar el proyecto completo necesitas:
 
 El archivo [./.env.example](./.env.example) contiene la plantilla general del proyecto.
 
+Antes de levantar el stack con Docker, crea [./.env](./.env) a partir de esa plantilla y completa al menos las credenciales de PostgreSQL, MongoDB y `SECRET_KEY`.
+
 Los archivos de configuración importantes son:
 
+- `./.env`
 - `services/api-gateway/.env`
 - `services/auth-service/.env`
 - `services/auth-service/.env.local`
@@ -127,6 +133,8 @@ Variables relevantes por servicio:
 - `EVENTS_SERVICE_URL`
 - `ORDERS_SERVICE_URL`
 - `JWT_SECRET`
+
+En Docker Compose el Gateway toma `JWT_SECRET` desde `SECRET_KEY`.
 
 ### Auth Service
 
@@ -164,12 +172,30 @@ La diferencia principal entre Docker y ejecución local está en PostgreSQL:
 
 ## Cómo levantar el proyecto
 
-### 1. Levantar la infraestructura base
+### 1. Crear el archivo de entorno raíz
+
+Desde la raíz del repositorio, copia la plantilla:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Luego ajusta los valores necesarios en [./.env](./.env), en especial:
+
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `MONGO_INITDB_DATABASE`
+- `MONGO_INITDB_ROOT_USERNAME`
+- `MONGO_INITDB_ROOT_PASSWORD`
+- `SECRET_KEY`
+
+### 2. Levantar todo el stack con Docker Compose
 
 Desde la raíz del repositorio:
 
 ```powershell
-docker compose up
+docker compose up --build
 ```
 
 Esto levanta:
@@ -179,8 +205,26 @@ Esto levanta:
 - `redis-db`
 - `nats-server`
 - `auth-service`
+- `events-service`
+- `orders-service`
+- `notifications-service`
+- `api-gateway`
 
-### 2. Levantar el API Gateway
+El API Gateway queda disponible en `http://localhost:3000`.
+
+Si las imágenes ya fueron construidas y no cambiaste código, `docker compose up` también funciona.
+
+### 3. Detener el stack
+
+```powershell
+docker compose down
+```
+
+### 4. Ejecución manual por servicio
+
+Si no quieres usar Docker para todos los servicios, puedes levantarlos manualmente.
+
+#### API Gateway
 
 En una terminal nueva:
 
@@ -192,7 +236,7 @@ npm run start:dev
 
 El Gateway queda expuesto en `http://localhost:3000`.
 
-### 3. Levantar Events Service
+#### Events Service
 
 En otra terminal:
 
@@ -204,7 +248,7 @@ npm run start:dev
 
 Normalmente queda expuesto en `http://localhost:3002`.
 
-### 4. Levantar Orders Service
+#### Orders Service
 
 En otra terminal:
 
@@ -216,7 +260,7 @@ npm run start:dev
 
 Normalmente queda expuesto en `http://localhost:3001`.
 
-### 5. Levantar Notifications Service
+#### Notifications Service
 
 En otra terminal:
 

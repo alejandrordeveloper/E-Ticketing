@@ -35,6 +35,24 @@ auth_url=http://localhost:8000
 token=<jwt>
 ```
 
+## Payloads esperados
+
+### Auth vía Gateway
+
+- `POST /auth/register` requiere `username`, `email`, `password`.
+- `POST /auth/login` requiere `email`, `password`.
+
+### Auth directo
+
+- `POST /register/` requiere `username`, `email`, `password`.
+- `POST /login/` requiere `email`, `password`.
+
+### Core vía Gateway
+
+- `POST /events` requiere `name`, `description`, `date`, `inventory`.
+- `POST /orders/stock` requiere `eventId`, `initialInventory`.
+- `POST /orders` requiere `eventId`, `userId`, `quantity`.
+
 ## Endpoints probados en Sprint 1
 
 ### Gateway

@@ -6,7 +6,7 @@ services:
       - "4222:4222"
       - "8222:8222"
   postgres-db:
-    image: postgres:latest
+    image: postgres:17
     ports:
       - "5433:5432"
     environment:
@@ -14,10 +14,16 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - postgres-data:/var/lib/postgresql
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   mongo-db:
-    image: mongo:latest
+    image: mongo:8
     ports:
       - "27018:27017"
     environment:
@@ -26,26 +32,120 @@ services:
       MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
     volumes:
       - mongo-data:/data/db
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "echo 'db.runCommand({ ping: 1 }).ok' | mongosh mongodb://$$MONGO_INITDB_ROOT_USERNAME:$$MONGO_INITDB_ROOT_PASSWORD@localhost:27017/admin --quiet",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
 
   redis-db:
-    image: redis:latest
+    image: redis:8
     ports:
       - "6379:6379"
     volumes:
       - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
 
   auth-service:
     build:
       context: ./services/auth-service
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - ./services/auth-service:/app
-    env_file:
-      - ./services/auth-service/.env
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-dev-only-secret-key}
+      DEBUG: ${DEBUG:-True}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1,0.0.0.0,auth-service}
+      DATABASE_NAME: ${POSTGRES_DB}
+      DATABASE_USER: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_HOST: postgres-db
+      DATABASE_PORT: 5432
     depends_on:
-      - postgres-db
+      postgres-db:
+        condition: service_healthy
+
+  events-service:
+    build:
+      context: ./services/events-service
+    command: npm run start
+    ports:
+      - "3002:3002"
+    environment:
+      PORT: 3002
+      MONGO_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo-db:27017/${MONGO_INITDB_DATABASE}?authSource=admin
+    depends_on:
+      mongo-db:
+        condition: service_healthy
+
+  orders-service:
+    build:
+      context: ./services/orders-service
+    command: npm run start
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      DATABASE_HOST: postgres-db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${POSTGRES_DB}
+      DATABASE_USER: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_SCHEMA: orders
+      TYPEORM_SYNCHRONIZE: "true"
+      REDIS_HOST: redis-db
+      REDIS_PORT: 6379
+      REDIS_ORDER_CONFIRMED_CHANNEL: ORDER_CONFIRMED
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      redis-db:
+        condition: service_healthy
+
+  notifications-service:
+    build:
+      context: ./services/notifications-service
+    command: python manage.py runserver 0.0.0.0:8001
+    ports:
+      - "8001:8001"
+    environment:
+      REDIS_HOST: redis-db
+      REDIS_PORT: 6379
+      REDIS_ORDER_CONFIRMED_CHANNEL: ORDER_CONFIRMED
+    depends_on:
+      redis-db:
+        condition: service_healthy
+
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+    command: npm run start
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      CORS_ORIGIN: '*'
+      AUTH_SERVICE_URL: http://auth-service:8000
+      EVENTS_SERVICE_URL: http://events-service:3002
+      ORDERS_SERVICE_URL: http://orders-service:3001
+      JWT_SECRET: ${SECRET_KEY:-dev-only-secret-key}
+    depends_on:
+      auth-service:
+        condition: service_started
+      events-service:
+        condition: service_started
+      orders-service:
+        condition: service_started
 
 
 

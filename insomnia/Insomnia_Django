@@ -54,9 +54,8 @@ collection:
       mimeType: application/json
       text: |-
         {
-          "username": "admin",
-          "password": "admin123",
-        	"email": "alejandro@gmail.com"
+          "email": "alejandro@gmail.com",
+          "password": "admin123"
         }
     headers:
       - name: Content-Type
