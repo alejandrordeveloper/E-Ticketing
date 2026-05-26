@@ -1,123 +1,96 @@
 # API Gateway
 
-Este servicio funciona como punto de entrada HTTP del proyecto E-ticket. En el Sprint 1 se usó para recibir peticiones del cliente y reenviarlas al Auth Service.
+El API Gateway es el punto de entrada HTTP del proyecto E-ticket. Centraliza autenticación, exposición de eventos y acceso protegido a órdenes.
 
 ## Responsabilidad actual
 
-En el estado actual del proyecto, el Gateway:
+En el estado final de Sprint 3, este servicio se encarga de:
 
-- expone endpoints HTTP públicos
-- habilita `CORS`
-- aplica rate limiting global
-- valida payloads con `ValidationPipe`
-- reenvía peticiones de autenticación al Auth Service
+- exponer endpoints HTTP para autenticación, eventos y órdenes
+- reenviar autenticación a `auth-service`
+- reenviar catálogo a `events-service`
+- reenviar stock y órdenes a `orders-service`
+- validar JWT en rutas protegidas de órdenes
+- validar payloads con DTOs y `ValidationPipe`
+- unificar manejo de errores HTTP
+- exponer Swagger en `/api/docs`
 
-## Dependencias principales
+## Endpoints principales
 
-- `@nestjs/config`
-- `@nestjs/axios`
-- `@nestjs/throttler`
-- `axios`
+### Autenticación
+
+- `POST /auth/register`
+- `POST /auth/login`
+
+### Eventos
+
+- `GET /events`
+- `POST /events`
+
+### Órdenes
+
+- `GET /orders`
+- `POST /orders`
+- `POST /orders/stock`
 
 ## Variables de entorno
 
-El Gateway usa `services/api-gateway/.env`.
+Archivo usado:
 
-Variables actuales:
+```text
+services/api-gateway/.env
+```
+
+Variables principales:
 
 ```env
 PORT=3000
 CORS_ORIGIN=*
 AUTH_SERVICE_URL=http://localhost:8000
+EVENTS_SERVICE_URL=http://localhost:3002
+ORDERS_SERVICE_URL=http://localhost:3001
+JWT_SECRET=your-secret-key
 ```
 
-## Instalación
+## Ejecución local
 
 ```powershell
 cd services/api-gateway
 npm install
-```
-
-## Ejecución
-
-```powershell
 npm run start:dev
 ```
 
-El servicio queda disponible en `http://localhost:3000`.
+Disponible en `http://localhost:3000`.
 
-## Configuración aplicada
+## Swagger
 
-### CORS
-
-Se habilitó en `src/main.ts` con `origin` tomado desde `CORS_ORIGIN`.
-
-### Validación global
-
-Se usa `ValidationPipe` global con `whitelist: true`.
-
-### Rate limiting
-
-Se configuró `ThrottlerModule` con el siguiente límite:
-
-- `20` requests por minuto por IP
-
-## Endpoints del Sprint 1
-
-### POST /auth/register
-
-Reenvía la petición al Auth Service:
+La documentación OpenAPI queda disponible en:
 
 ```text
-POST {AUTH_SERVICE_URL}/register/
+http://localhost:3000/api/docs
 ```
 
-Body esperado:
+## Calidad aplicada
 
-```json
-{
-  "username": "usuario1",
-  "email": "usuario1@email.com",
-  "password": "Password123"
-}
-```
+- `ValidationPipe` global con whitelist y transformación
+- filtros globales de excepciones con contrato JSON unificado
+- logging estructurado JSON
+- `JwtAuthGuard` para proteger rutas de órdenes
 
-### POST /auth/login
-
-Reenvía la petición al Auth Service:
-
-```text
-POST {AUTH_SERVICE_URL}/login/
-```
-
-Body esperado:
-
-```json
-{
-  "email": "usuario1@email.com",
-  "password": "Password123"
-}
-```
-
-## Patrón API Gateway aplicado
-
-En Sprint 1 se aplicó el patrón API Gateway de forma inicial.
-
-- El cliente no consume directamente el Auth Service.
-- El cliente habla con el Gateway.
-- El Gateway centraliza acceso HTTP, CORS, validación y rate limiting.
-- El Gateway decide a qué servicio interno reenviar la solicitud.
-
-En esta etapa la comunicación entre Gateway y Auth se resolvió por HTTP usando `HttpService`.
-
-## Tests disponibles
-
-El proyecto Nest incluye la configuración base para:
+## Pruebas
 
 ```powershell
 npm run test
 npm run test:e2e
-npm run test:cov
+npm run test:cov -- --runInBand
 ```
 
-En Sprint 1 el foco principal de pruebas estuvo en el Auth Service.
+Cobertura validada en Sprint 3:
+
+- `92.17%`
+
+## Relación con otros servicios
+
+- `auth-service` mantiene usuarios y JWT
+- `events-service` mantiene el catálogo público
+- `orders-service` controla stock vendible y órdenes

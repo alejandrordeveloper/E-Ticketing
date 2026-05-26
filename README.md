@@ -1,10 +1,10 @@
 # E-ticket
 
-E-ticket es una plataforma orientada a microservicios para gestionar autenticación, eventos, órdenes y notificaciones. El proyecto se construyó en dos sprints: el primero dejó la base técnica de autenticación e infraestructura, y el segundo implementó la lógica principal de negocio con catálogo de eventos, stock vendible, control de concurrencia y notificaciones asíncronas.
+E-ticket es una plataforma orientada a microservicios para gestionar autenticación, eventos, órdenes y notificaciones. El proyecto se construyó en tres sprints: el primero dejó la base técnica de autenticación e infraestructura, el segundo implementó la lógica principal de negocio con catálogo de eventos, stock vendible, control de concurrencia y notificaciones asíncronas, y el tercero cerró calidad, documentación y evidencia técnica del sistema.
 
 ## Estado actual del proyecto
 
-Al cierre de los dos sprints, el proyecto incluye:
+Al cierre de los tres sprints, el proyecto incluye:
 
 - infraestructura local con Docker Compose para PostgreSQL, MongoDB, Redis y NATS
 - Auth Service en Django REST Framework con registro, login y refresh token
@@ -13,7 +13,11 @@ Al cierre de los dos sprints, el proyecto incluye:
 - Orders Service en NestJS con PostgreSQL para stock vendible y órdenes
 - Notifications Service en Django para consumo de eventos `ORDER_CONFIRMED`
 - validación JWT en el Gateway para proteger las rutas de órdenes
+- manejo global de errores con respuesta JSON estandarizada
+- validación de inputs y saneamiento básico en rutas sensibles
+- documentación OpenAPI/Swagger para los servicios HTTP principales
 - pruebas automáticas unitarias y e2e en los servicios principales
+- cobertura validada por encima de `70%` en los cinco servicios
 - colecciones de Insomnia para validación manual
 
 ## Arquitectura general
@@ -37,8 +41,10 @@ La arquitectura actual del proyecto queda distribuida así:
 ├── docs/
 │   ├── diagrama-arquitectura.md
 │   ├── diagrama-er.md
+│   ├── diagrama-secuencia-compra.md
 │   ├── sprint-1.md
-│   └── sprint-2.md
+│   ├── sprint-2.md
+│   └── sprint-3.md
 ├── insomnia/
 ├── services/
 │   ├── api-gateway/
@@ -272,6 +278,208 @@ python manage.py runserver 8001
 
 Este servicio queda escuchando eventos `ORDER_CONFIRMED` desde Redis.
 
+## Paso a paso recomendado para evaluar el proyecto
+
+Si el objetivo es levantar el sistema y validar el flujo principal sin revisar varios archivos, este es el recorrido recomendado.
+
+### 1. Preparar variables de entorno
+
+Desde la raíz del repositorio:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Revisar al menos estos valores en `./.env`:
+
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `MONGO_INITDB_DATABASE`
+- `MONGO_INITDB_ROOT_USERNAME`
+- `MONGO_INITDB_ROOT_PASSWORD`
+- `SECRET_KEY`
+
+### 2. Levantar toda la infraestructura y servicios
+
+Desde la raíz:
+
+```powershell
+docker compose up --build
+```
+
+Cuando todo esté arriba, verificar estos endpoints:
+
+- Gateway: `http://localhost:3000`
+- Swagger Gateway: `http://localhost:3000/api/docs`
+- Swagger Events: `http://localhost:3002/api/docs`
+- Swagger Orders: `http://localhost:3001/api/docs`
+- Swagger Auth: `http://localhost:8000/api/docs/`
+
+### 3. Abrir Insomnia para la validación manual
+
+Colecciones disponibles en el repositorio:
+
+- `insomnia/Insomnia_Django`
+- `insomnia/Insomnia_Nestjs`
+- `insomnia/Insomnia_Core`
+
+Si se prefiere, el mismo flujo también puede probarse desde Swagger.
+
+### 4. Registrar un usuario
+
+Ejecutar en el Gateway:
+
+- `POST http://localhost:3000/auth/register`
+
+Body sugerido:
+
+```json
+{
+	"username": "demo_user",
+	"email": "demo_user@email.com",
+	"password": "Password123"
+}
+```
+
+### 5. Iniciar sesión y guardar el JWT
+
+Ejecutar:
+
+- `POST http://localhost:3000/auth/login`
+
+Body sugerido:
+
+```json
+{
+	"email": "demo_user@email.com",
+	"password": "Password123"
+}
+```
+
+Guardar el valor de `access` y usarlo como:
+
+```text
+Authorization: Bearer <token>
+```
+
+### 6. Crear un evento
+
+Ejecutar:
+
+- `POST http://localhost:3000/events`
+
+Body sugerido:
+
+```json
+{
+	"name": "Conferencia Tech",
+	"description": "Evento de prueba para validacion",
+	"date": "2026-08-15T14:00:00.000Z",
+	"inventory": 10
+}
+```
+
+### 7. Consultar catálogo
+
+Ejecutar:
+
+- `GET http://localhost:3000/events`
+
+Tomar el `id` del evento creado.
+
+### 8. Inicializar stock vendible real
+
+Ejecutar con JWT:
+
+- `POST http://localhost:3000/orders/stock`
+
+Body sugerido:
+
+```json
+{
+	"eventId": "<eventId>",
+	"initialInventory": 5
+}
+```
+
+### 9. Crear una orden
+
+Ejecutar con JWT:
+
+- `POST http://localhost:3000/orders`
+
+Body sugerido:
+
+```json
+{
+	"eventId": "<eventId>",
+	"userId": "demo-user-1",
+	"quantity": 1
+}
+```
+
+Resultado esperado:
+
+- la orden se crea con estado `confirmed`
+- el inventario se descuenta
+- `orders-service` publica `ORDER_CONFIRMED`
+
+### 10. Consultar las órdenes creadas
+
+Ejecutar con JWT:
+
+- `GET http://localhost:3000/orders`
+
+### 11. Validar notificación asíncrona
+
+Revisar los logs de `notifications-service` y confirmar que aparezca el consumo del evento `ORDER_CONFIRMED`.
+
+### 12. Validar prevención de sobreventa
+
+Para comprobar la regla principal del proyecto:
+
+1. Inicializar stock con un valor pequeño, por ejemplo `1`.
+2. Lanzar dos compras casi simultáneas para ese mismo evento.
+3. Verificar que una orden se confirme y la otra falle por conflicto o falta de inventario.
+
+### 13. Detener el entorno
+
+Cuando termine la revisión:
+
+```powershell
+docker compose down
+```
+
+Para una guía más orientada a exposición, ver también [docs/demo-sprint-3.md](./docs/demo-sprint-3.md).
+
+## Sprint 3: Calidad, Documentación y Demo
+
+El Sprint 3 cerró la parte transversal del proyecto con foco en calidad técnica y trazabilidad.
+
+### Mejoras aplicadas
+
+- contrato de errores unificado en Gateway, servicios Nest y Auth Service
+- logging estructurado JSON
+- validación tipada de payloads con DTOs y serializers estrictos
+- sanitización básica en autenticación
+- Swagger/OpenAPI en los cuatro servicios HTTP
+
+### Swagger disponible en
+
+- `http://localhost:3000/api/docs`
+- `http://localhost:3002/api/docs`
+- `http://localhost:3001/api/docs`
+- `http://localhost:8000/api/docs/`
+
+### Cobertura final validada
+
+- `api-gateway`: `92.17%`
+- `events-service`: `87.21%`
+- `orders-service`: `87.44%`
+- `auth-service`: `93%`
+- `notifications-service`: `91%`
+
 ## Sprint 2 paso a paso
 
 El Sprint 2 implementa el flujo principal de negocio del sistema. A nivel de proyecto principal, el recorrido completo es este.
@@ -438,6 +646,7 @@ coverage html
 cd services/events-service
 npm run test
 npm run test:e2e
+npm run test:cov -- --runInBand
 ```
 
 ### Orders Service
@@ -446,6 +655,7 @@ npm run test:e2e
 cd services/orders-service
 npm run test
 npm run test:e2e
+npm run test:cov -- --runInBand
 ```
 
 ### Notifications Service
@@ -453,6 +663,8 @@ npm run test:e2e
 ```powershell
 cd services/notifications-service
 python manage.py test notifications
+coverage run --source='.' manage.py test notifications
+coverage report
 ```
 
 ### API Gateway
@@ -461,14 +673,19 @@ python manage.py test notifications
 cd services/api-gateway
 npm run test
 npm run test:e2e
+npm run test:cov -- --runInBand
 ```
 
 ## Documentación relacionada
 
 - [docs/sprint-1.md](./docs/sprint-1.md)
 - [docs/sprint-2.md](./docs/sprint-2.md)
+- [docs/sprint-3.md](./docs/sprint-3.md)
 - [docs/diagrama-arquitectura.md](./docs/diagrama-arquitectura.md)
 - [docs/diagrama-er.md](./docs/diagrama-er.md)
+- [docs/diagrama-secuencia-compra.md](./docs/diagrama-secuencia-compra.md)
+- [docs/demo-sprint-3.md](./docs/demo-sprint-3.md)
+- [docs/checklist-entrega.md](./docs/checklist-entrega.md)
 - [services/api-gateway/README.md](./services/api-gateway/README.md)
 - [services/auth-service/README.md](./services/auth-service/README.md)
 - [insomnia/README.md](./insomnia/README.md)

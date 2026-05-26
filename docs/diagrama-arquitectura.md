@@ -8,21 +8,21 @@ graph TD
   B -->|REST| C(Auth Service - Django)
   B -->|REST| D(Events Service - NestJS)
   B -->|REST| E(Orders Service - NestJS)
-  B -->|REST| F(Notifications Service - Django)
+  F(Notifications Service - Django)
   C -->|PostgreSQL| G[(PostgreSQL)]
   D -->|MongoDB| H[(MongoDB)]
-  E -->|MongoDB| H
-  B -->|Redis/NATS| I[(Redis/NATS)]
-  C -->|Redis| I
-  D -->|Redis| I
-  E -->|Redis| I
-  F -->|Redis| I
-  F -->|Email/SMS| J[(Proveedor externo)]
+  E -->|PostgreSQL| G
+  E -->|Redis Pub/Sub| I[(Redis)]
+  F -->|Redis Pub/Sub| I
+  J[(NATS)]
 ```
 
 **Descripción:**
 - El cliente se comunica con el API Gateway.
-- El Gateway enruta peticiones a los microservicios.
-- Cada microservicio usa su propia base de datos.
-- Redis/NATS se usa para cache, colas y eventos.
-- Notificaciones puede interactuar con servicios externos (email/SMS).
+- El Gateway enruta autenticación, eventos y órdenes hacia sus microservicios dueños.
+- `auth-service` usa PostgreSQL para usuarios y JWT.
+- `events-service` usa MongoDB para el catálogo público.
+- `orders-service` usa PostgreSQL para stock real y órdenes.
+- `orders-service` publica `ORDER_CONFIRMED` en Redis.
+- `notifications-service` consume ese evento y simula la notificación mediante logs.
+- NATS permanece en la infraestructura del proyecto, pero no participa en el flujo principal implementado hasta Sprint 3.

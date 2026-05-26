@@ -20,6 +20,8 @@ env/
 venv/
 .venv/
 *.sqlite3
+.coverage
+htmlcov/
 
 # Logs y archivos temporales
 logs/
@@ -44,6 +46,9 @@ logs/
 .c9/
 *.launch
 *.sublime-workspace
+
+# Documentos locales no versionados
+docs/presentacion-oral.md
 
 # Excepciones para archivos de ejemplo de entorno
 !.env.example

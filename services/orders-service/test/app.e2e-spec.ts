@@ -1,5 +1,6 @@
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { HttpExceptionFilter } from '../src/common/http-exception.filter';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { OrdersController } from './../src/orders/orders.controller';
@@ -26,6 +27,14 @@ describe('OrdersController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+        forbidNonWhitelisted: true,
+      }),
+    );
+    app.useGlobalFilters(new HttpExceptionFilter());
     await app.init();
     ordersServiceMock.create.mockReset();
     ordersServiceMock.findAll.mockReset();
@@ -90,6 +99,38 @@ describe('OrdersController (e2e)', () => {
       .send(payload)
       .expect(201)
       .expect(createdOrder);
+  });
+
+  it('/orders (POST) returns standardized validation errors', async () => {
+    await request(app.getHttpServer())
+      .post('/orders')
+      .send({
+        eventId: '',
+        userId: '',
+        quantity: 0,
+        extraField: true,
+      })
+      .expect(400)
+      .expect(({ body }) => {
+        expect(body).toMatchObject({
+          statusCode: 400,
+          error: 'Bad Request',
+          message: 'Validation failed',
+          path: '/orders',
+          service: 'orders-service',
+        });
+        expect(body.timestamp).toEqual(expect.any(String));
+        expect(body.details).toEqual(
+          expect.arrayContaining([
+            expect.stringContaining('eventId'),
+            expect.stringContaining('userId'),
+            expect.stringContaining('quantity'),
+            expect.stringContaining('extraField'),
+          ]),
+        );
+      });
+
+    expect(ordersServiceMock.create).not.toHaveBeenCalled();
   });
 
   afterEach(async () => {

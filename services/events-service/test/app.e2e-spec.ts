@@ -1,5 +1,6 @@
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { HttpExceptionFilter } from '../src/common/http-exception.filter';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { EventsController } from './../src/events/events.controller';
@@ -25,6 +26,14 @@ describe('EventsController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+        forbidNonWhitelisted: true,
+      }),
+    );
+    app.useGlobalFilters(new HttpExceptionFilter());
     await app.init();
     eventsServiceMock.create.mockReset();
     eventsServiceMock.findAll.mockReset();
@@ -62,6 +71,39 @@ describe('EventsController (e2e)', () => {
       .expect(payload);
 
     expect(eventsServiceMock.create).toHaveBeenCalledWith(payload);
+  });
+
+  it('/events (POST) returns standardized validation errors', async () => {
+    await request(app.getHttpServer())
+      .post('/events')
+      .send({
+        name: '',
+        description: 'Evento con payload invalido',
+        date: 'invalid-date',
+        inventory: -1,
+        extraField: true,
+      })
+      .expect(400)
+      .expect(({ body }) => {
+        expect(body).toMatchObject({
+          statusCode: 400,
+          error: 'Bad Request',
+          message: 'Validation failed',
+          path: '/events',
+          service: 'events-service',
+        });
+        expect(body.timestamp).toEqual(expect.any(String));
+        expect(body.details).toEqual(
+          expect.arrayContaining([
+            expect.stringContaining('name'),
+            expect.stringContaining('date'),
+            expect.stringContaining('inventory'),
+            expect.stringContaining('extraField'),
+          ]),
+        );
+      });
+
+    expect(eventsServiceMock.create).not.toHaveBeenCalled();
   });
 
   afterEach(async () => {

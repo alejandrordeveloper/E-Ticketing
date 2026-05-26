@@ -16,12 +16,27 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from users.views import RegisterView
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions
+from users.views import RegisterView, UserLoginView
+from rest_framework_simplejwt.views import TokenRefreshView
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title='E-ticket Auth Service',
+        default_version='v1',
+        description='Authentication service for user registration and JWT issuance.',
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/schema/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='swagger-ui'),
     path('register/', RegisterView.as_view(), name='register'),
-    path('login/', TokenObtainPairView.as_view(), name='login'),
+    path('login/', UserLoginView.as_view(), name='login'),
     path('token/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

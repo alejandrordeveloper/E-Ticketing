@@ -1,7 +1,10 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CoreProxyService } from './core-proxy.service';
+import { CreateEventDto } from './dto/create-event.dto';
 
+@ApiTags('events')
 @Controller('events')
 export class EventsController {
   constructor(
@@ -9,13 +12,18 @@ export class EventsController {
     private readonly configService: ConfigService,
   ) {}
 
+  @ApiOperation({ summary: 'List all published events' })
+  @ApiOkResponse({ description: 'Events catalog returned successfully' })
   @Get()
   async findAll() {
     return this.coreProxyService.get(`${this.eventsServiceUrl}/events`);
   }
 
+  @ApiOperation({ summary: 'Create a new event in the catalog' })
+  @ApiBody({ type: CreateEventDto })
+  @ApiCreatedResponse({ description: 'Event created successfully' })
   @Post()
-  async create(@Body() body: unknown) {
+  async create(@Body() body: CreateEventDto) {
     return this.coreProxyService.post(`${this.eventsServiceUrl}/events`, body);
   }
 
