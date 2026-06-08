@@ -825,18 +825,20 @@ function App() {
         <div className="session-card backstage-guide-card backstage-guide-card--active">
           <p className="backstage-guide-card__title">Current event in setup</p>
           {stagedEvent ? (
-            <>
-              <p>
+            <div className="backstage-guide-summary">
+              <div className="backstage-guide-summary__item backstage-guide-summary__item--highlight">
+                <span className="backstage-guide-summary__label">Event</span>
                 <strong>{getEventDisplayTitle(stagedEvent.name)}</strong>
-              </p>
-              <p className="session-token">Event ID: {stagedEvent._id}</p>
-              <p className="session-token">Catalog inventory: {stagedEvent.inventory}</p>
-              <div className="hero-actions backstage-guide-actions">
-                <a className="button button--ghost" href="/" onClick={(event) => navigateTo(event, '/')}>
-                  Go to Storefront
-                </a>
               </div>
-            </>
+              <div className="backstage-guide-summary__item">
+                <span className="backstage-guide-summary__label">Event ID</span>
+                <p className="session-token">{stagedEvent._id}</p>
+              </div>
+              <div className="backstage-guide-summary__item">
+                <span className="backstage-guide-summary__label">Catalog inventory</span>
+                <p className="session-token">{stagedEvent.inventory}</p>
+              </div>
+            </div>
           ) : (
             <p className="session-token">Create an event first and its ID will be preloaded into stock setup automatically.</p>
           )}
@@ -972,15 +974,6 @@ function App() {
           </div>
         </div>
 
-        <div className="topbar-session">
-          <div className="topbar-badge">{sessionBadgeLabel}</div>
-          {session ? (
-            <button type="button" className="button button--ghost topbar-signout" onClick={handleLogout}>
-              Sign out
-            </button>
-          ) : null}
-        </div>
-
         <nav className="topbar-nav" aria-label="Primary">
           {isBackstageRoute ? (
             <a className="topbar-nav__return" href="/" onClick={(event) => navigateTo(event, '/')}>
@@ -994,6 +987,15 @@ function App() {
             </>
           )}
         </nav>
+
+        <div className="topbar-session">
+          <div className="topbar-badge">{sessionBadgeLabel}</div>
+          {session ? (
+            <button type="button" className="button button--ghost topbar-signout" onClick={handleLogout}>
+              Sign out
+            </button>
+          ) : null}
+        </div>
       </header>
 
       {isBackstageRoute ? (

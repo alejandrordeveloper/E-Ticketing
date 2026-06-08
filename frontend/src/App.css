@@ -79,9 +79,15 @@
 }
 
 .topbar-nav a.topbar-nav__return {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: #07110e;
   background: linear-gradient(135deg, #d8ff3e, #53f7b1);
   box-shadow: 0 10px 24px rgba(83, 247, 177, 0.18);
+  min-width: 8.5rem;
+  padding: 0.78rem 1.5rem;
+  text-align: center;
 }
 
 .topbar-badge {
@@ -356,6 +362,36 @@
 .backstage-guide-card--active {
   border-color: rgba(216, 255, 62, 0.16);
   background: rgba(216, 255, 62, 0.04);
+}
+
+.backstage-guide-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.backstage-guide-summary__item {
+  display: grid;
+  gap: 0.35rem;
+  align-content: start;
+  min-width: 0;
+}
+
+.backstage-guide-summary__item--highlight {
+  padding-right: 0.25rem;
+}
+
+.backstage-guide-summary__item strong,
+.backstage-guide-summary__item .session-token {
+  overflow-wrap: anywhere;
+}
+
+.backstage-guide-summary__label {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 .backstage-steps {
