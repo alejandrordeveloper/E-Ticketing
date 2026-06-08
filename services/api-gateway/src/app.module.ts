@@ -8,6 +8,7 @@ import { HttpModule } from '@nestjs/axios';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { CoreProxyService } from './core-proxy.service';
+import { BackstageAdminGuard } from './backstage-admin.guard';
 import { EventsController } from './events.controller';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { OrdersController } from './orders.controller';
@@ -29,6 +30,7 @@ import { OrdersController } from './orders.controller';
   providers: [
     AppService,
     CoreProxyService,
+    BackstageAdminGuard,
     JwtAuthGuard,
     {
       provide: APP_GUARD,

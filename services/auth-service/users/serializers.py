@@ -58,6 +58,14 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserLoginSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['email'] = user.email
+        token['username'] = user.username
+        token['is_staff'] = user.is_staff
+        return token
+
     def validate(self, attrs):
         sanitized_attrs = attrs.copy()
         sanitized_attrs[self.username_field] = sanitize_email_input(

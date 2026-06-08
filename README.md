@@ -16,9 +16,18 @@ Al cierre de los tres sprints, el proyecto incluye:
 - manejo global de errores con respuesta JSON estandarizada
 - validación de inputs y saneamiento básico en rutas sensibles
 - documentación OpenAPI/Swagger para los servicios HTTP principales
+- frontend React para demo funcional de compra y operación Backstage
 - pruebas automáticas unitarias y e2e en los servicios principales
 - cobertura validada por encima de `70%` en los cinco servicios
 - colecciones de Insomnia para validación manual
+
+## Documentación adicional
+
+Además de la documentación de arquitectura y sprints, el frontend quedó documentado en:
+
+- [docs/frontend.md](./docs/frontend.md)
+
+Ese documento detalla rutas, flujos, integración con el gateway, sesión, Backstage y consideraciones de demo.
 
 ## Arquitectura general
 
@@ -39,12 +48,14 @@ La arquitectura actual del proyecto queda distribuida así:
 .
 ├── docker-compose.yml
 ├── docs/
+│   ├── frontend.md
 │   ├── diagrama-arquitectura.md
 │   ├── diagrama-er.md
 │   ├── diagrama-secuencia-compra.md
 │   ├── sprint-1.md
 │   ├── sprint-2.md
 │   └── sprint-3.md
+├── frontend/
 ├── insomnia/
 ├── services/
 │   ├── api-gateway/

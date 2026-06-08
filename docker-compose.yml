@@ -59,13 +59,16 @@ services:
   auth-service:
     build:
       context: ./services/auth-service
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: sh -c "python manage.py migrate && python manage.py ensure_demo_admin && python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
     environment:
       SECRET_KEY: ${SECRET_KEY:-dev-only-secret-key}
       DEBUG: ${DEBUG:-True}
       ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1,0.0.0.0,auth-service}
+      BACKSTAGE_ADMIN_EMAIL: ${BACKSTAGE_ADMIN_EMAIL}
+      BACKSTAGE_ADMIN_PASSWORD: ${BACKSTAGE_ADMIN_PASSWORD}
+      BACKSTAGE_ADMIN_USERNAME: ${BACKSTAGE_ADMIN_USERNAME}
       DATABASE_NAME: ${POSTGRES_DB}
       DATABASE_USER: ${POSTGRES_USER}
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
@@ -135,6 +138,7 @@ services:
     environment:
       PORT: 3000
       CORS_ORIGIN: '*'
+      BACKSTAGE_ADMIN_EMAIL: ${BACKSTAGE_ADMIN_EMAIL}
       AUTH_SERVICE_URL: http://auth-service:8000
       EVENTS_SERVICE_URL: http://events-service:3002
       ORDERS_SERVICE_URL: http://orders-service:3001

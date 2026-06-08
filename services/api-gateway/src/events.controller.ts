@@ -1,6 +1,8 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { BackstageAdminGuard } from './backstage-admin.guard';
+import { JwtAuthGuard } from './jwt-auth.guard';
 import { CoreProxyService } from './core-proxy.service';
 import { CreateEventDto } from './dto/create-event.dto';
 
@@ -22,6 +24,7 @@ export class EventsController {
   @ApiOperation({ summary: 'Create a new event in the catalog' })
   @ApiBody({ type: CreateEventDto })
   @ApiCreatedResponse({ description: 'Event created successfully' })
+  @UseGuards(JwtAuthGuard, BackstageAdminGuard)
   @Post()
   async create(@Body() body: CreateEventDto) {
     return this.coreProxyService.post(`${this.eventsServiceUrl}/events`, body);
