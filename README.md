@@ -229,6 +229,52 @@ Esto levanta:
 
 El API Gateway queda disponible en `http://localhost:3000`.
 
+### 3. Levantar el frontend por separado
+
+`docker compose up --build` no levanta el frontend. El cliente web se ejecuta aparte desde la carpeta `frontend/`.
+
+En otra terminal:
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+La aplicación queda disponible normalmente en `http://localhost:5173`.
+
+## Arranque local recomendado para demo
+
+Si quieres correr el proyecto completo en local para mostrar la demo, este es el orden recomendado:
+
+### Terminal 1: backend e infraestructura
+
+Desde la raíz del repositorio:
+
+```powershell
+docker compose up --build
+```
+
+Esto deja arriba la infraestructura y los microservicios, incluido el API Gateway en `http://localhost:3000`.
+
+### Terminal 2: frontend
+
+Desde la carpeta `frontend/`:
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+Esto deja la interfaz disponible en `http://localhost:5173`.
+
+### URLs útiles para validar la demo
+
+- Storefront: `http://localhost:5173`
+- Backstage: `http://localhost:5173/backstage`
+- API Gateway Swagger: `http://localhost:3000/api/docs`
+
 Si las imágenes ya fueron construidas y no cambiaste código, `docker compose up` también funciona.
 
 ### 3. Detener el stack
